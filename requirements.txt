@@ -1,9 +1,9 @@
+streamlit
+groq
+requests
+httpx
+python-dotenv
+streamlit-cookies-manager==0.2.0
+pandas
 fastapi
 uvicorn
-openai
-streamlit
-python-dotenv
-requests
-pandas 
-groq
-streamlit-cookies-manager
