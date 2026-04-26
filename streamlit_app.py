@@ -131,49 +131,46 @@ def show_login():
             content: ""; flex: 1;
             border-top: 1px solid {DIVIDER};
         }}
+        .stTextInput input {{
+            background: #111111 !important;
+            color: white !important;
+            border: 1px solid #444444 !important;
+            border-radius: 10px !important;
+        }}
+        .stButton > button {{
+            background: linear-gradient(90deg, #cc0000, #ff4444) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 10px !important;
+            padding: 0.6rem 2rem !important;
+            font-size: 1rem !important;
+            font-weight: 700 !important;
+            width: 100% !important;
+        }}
     </style>
     """, unsafe_allow_html=True)
 
-    # EROS branding top left
-    tc1, tc2 = st.columns([2, 4])
-    with tc1:
-        st.markdown(f"""
+    # Header
+    st.markdown(f"""
+    <div style="text-align:center; margin-bottom: 1rem;">
         <div style="
-            font-size: 2.2rem; font-weight: 900;
+            font-size: 2.5rem; font-weight: 900;
             background: linear-gradient(90deg, #ff4444, #ff8800);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: 4px; padding-top: 4px;
+            letter-spacing: 4px;
         ">EROS</div>
-        <div style="
-            font-size: 0.7rem; color: {MUTED};
-            letter-spacing: 2px; margin-top: -6px;
-        ">EMERGENCY RESPONSE OS</div>
-        """, unsafe_allow_html=True)
+        <div style="font-size: 0.7rem; color: {MUTED}; letter-spacing: 2px;">
+            EMERGENCY RESPONSE OS
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
     st.markdown('<div class="login-wrapper"><div class="login-box">', unsafe_allow_html=True)
-
-    st.markdown('<div class="login-title">🚑 Emergency Response System</div>',
-                unsafe_allow_html=True)
-    st.markdown('<div class="login-subtitle">AI-Powered Emergency Analysis Platform</div>',
-                unsafe_allow_html=True)
+    st.markdown('<div class="login-title">🚑 Emergency Response System</div>', unsafe_allow_html=True)
+    st.markdown('<div class="login-subtitle">AI-Powered Emergency Analysis Platform</div>', unsafe_allow_html=True)
 
     st.markdown(f"""
-    <div style="
-        color: {TEXT2};
-        font-size: 1.05rem;
-        line-height: 1.8;
-        margin: 1rem 0 1.5rem 0;
-        padding: 1.2rem 1.4rem;
-        background: {DESC_BG};
-        border-radius: 12px;
-        border-left: 3px solid #ff4444;
-        text-align: center;
-    ">
-        AI system that helps emergency services respond faster to accidents.
-    </div>
-
     <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:1.5rem;">
         <div style="background:#1a1a2e; border-radius:20px; padding:6px 14px; font-size:0.82rem; color:#8888ff;">🧠 AI Analysis</div>
         <div style="background:#1a2e1a; border-radius:20px; padding:6px 14px; font-size:0.82rem; color:#44cc88;">🏥 Real Hospitals</div>
@@ -183,67 +180,39 @@ def show_login():
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="divider-line">Sign in to continue</div>',
-                unsafe_allow_html=True)
+    st.markdown('<div class="divider-line">Login to continue</div>', unsafe_allow_html=True)
 
-    # Google Login
-    try:
-        from app.auth import get_google_auth_url, exchange_code_for_token, get_user_info
+    # Simple login form
+    username = st.text_input("Username", placeholder="Enter username", key="login_username")
+    password = st.text_input("Password", placeholder="Enter password", type="password", key="login_password")
 
-        query_params = st.query_params
-        code = query_params.get("code")
-
-        if code:
-            with st.spinner("🔐 Signing you in with Google..."):
-                token_data = exchange_code_for_token(code)
-                access_token = token_data.get("access_token")
-                if access_token:
-                    user_info = get_user_info(access_token)
-                    st.session_state.connected = True
-                    st.session_state.user_info = user_info
-                    cookies["user_info"] = json.dumps(user_info)
-                    cookies.save()
-                    st.query_params.clear()
-                    st.rerun()
-                else:
-                    st.error("❌ Login failed. Please try again.")
+    if st.button("🚑 Login", key="login_btn"):
+        # Valid credentials - you can change these
+        valid_users = {
+            "admin": "eros2024",
+            "demo": "demo123",
+            "eros": "emergency",
+        }
+        if username in valid_users and valid_users[username] == password:
+            st.session_state.connected = True
+            st.session_state.user_info = {"name": username, "picture": ""}
+            cookies["user_info"] = json.dumps({"name": username, "picture": ""})
+            cookies.save()
+            st.rerun()
         else:
-            auth_url = get_google_auth_url()
-            st.markdown(f"""
-            <div style="text-align:center; margin: 1rem 0;">
-                <a href="{auth_url}" target="_self" style="
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 10px;
-                    background: white;
-                    color: #333333;
-                    border: 1px solid #dddddd;
-                    border-radius: 10px;
-                    padding: 12px 28px;
-                    font-size: 0.95rem;
-                    font-weight: 600;
-                    text-decoration: none;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-                ">
-                    <img src="https://www.google.com/favicon.ico" width="20"/>
-                    Sign in with Google
-                </a>
-            </div>
-            """, unsafe_allow_html=True)
-
-    except Exception as e:
-        st.error(f"Login Error: {str(e)}")
+            st.error("❌ Invalid username or password!")
 
     st.markdown("""
     <div class="footer-note">
-        🔒 We only access your name and email.<br>
-        No data is stored. This is a simulation system.
+        🔒 This is a simulation system for educational purposes.<br>
+        No real emergency services are notified.
     </div>
     """, unsafe_allow_html=True)
     st.markdown('</div></div>', unsafe_allow_html=True)
 
 
 # ─── Main App ───────────────────────────────────────────────
+
 def show_app():
     st.markdown(f"""
     <style>
