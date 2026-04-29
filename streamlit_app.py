@@ -569,8 +569,15 @@ def show_app():
             acc_data = [{"name": "🚨 ACCIDENT SCENE", "type": "Emergency", "lat": lat, "lon": lon, "color": [255, 0, 0, 255]}]
             hosp_data = []
             for h in hospitals:
-                # Top match gets gold, others get blue
-                color = [255, 170, 0, 255] if h.get("best_match") else [68, 170, 255, 200]
+                if h.get("recommended"):
+                    color = [255, 170, 0, 255] # Gold for recommended
+                elif h.get("nearest"):
+                    color = [0, 255, 100, 255] # Green for nearest
+                elif h.get("top_10"):
+                    color = [68, 170, 255, 200] # Blue for top 10
+                else:
+                    color = [100, 100, 100, 150] # Gray for others
+
                 hosp_data.append({
                     "name": h["name"],
                     "type": h["type"],
@@ -618,7 +625,7 @@ def show_app():
                 ],
                 tooltip={"html": "<b>{name}</b><br/>{type}", "style": {"color": "white", "backgroundColor": "#222222", "borderRadius": "8px"}}
             ))
-            st.caption(f"📍 Accident Coordinates: {round(lat, 5)}, {round(lon, 5)} | 🔴 Accident | 🔵 Hospital | 🟡 Best Match")
+            st.caption(f"📍 Accident Coordinates: {round(lat, 5)}, {round(lon, 5)} | 🔴 Accident | 🟡 Recommended | 🟢 Nearest | 🔵 Top 10 | ⚪ Others")
 
         # Hospitals List
         st.markdown('<div class="section-header">🏥 Nearby Hospitals</div>', unsafe_allow_html=True)
@@ -627,9 +634,9 @@ def show_app():
             st.error(f"❌ No hospitals found even within 100 km of {location}. Please check the location name and try again.")
         else:
             if radius_expanded:
-                st.warning(f"⚠️ No hospitals found within {radius} km. Automatically expanded search to **{radius_used} km** and found **{len(hospitals)} hospitals** (Top AI Matches highlighted).")
+                st.warning(f"⚠️ No hospitals found within {radius} km. Automatically expanded search to **{radius_used} km** and found **{len(hospitals)} hospitals**.")
             else:
-                st.success(f"✅ Found {len(hospitals)} hospitals within {radius_used} km of {location} (Top AI Matches highlighted).")
+                st.success(f"✅ Found {len(hospitals)} hospitals within {radius_used} km of {location}.")
 
             for i, hospital in enumerate(hospitals):
                 phone = hospital.get("phone")
@@ -641,15 +648,21 @@ def show_app():
 
                 maps_url = f"https://www.google.com/maps/search/{hospital['name'].replace(' ', '+')}"
 
-                if hospital.get("best_match"):
+                highlight_style = ""
+                badge_html = ""
+
+                if hospital.get("recommended"):
                     highlight_style = "border-left: 4px solid #ffaa00; background: #221c08; box-shadow: 0 0 15px rgba(255, 170, 0, 0.25);"
-                    badge_html = '<span style="background:#ffaa00; color:black; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold; margin-left:8px; vertical-align:middle;">🥇 BEST MATCH</span>'
-                elif hospital.get("top_10"):
+                    badge_html += '<span style="background:#ffaa00; color:black; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold; margin-left:8px; vertical-align:middle;">📋 RECOMMENDED IN PLAN</span>'
+                
+                if hospital.get("nearest"):
+                    if not highlight_style:
+                        highlight_style = "border-left: 4px solid #00ff66; background: #0a1a0f; box-shadow: 0 0 10px rgba(0, 255, 102, 0.15);"
+                    badge_html += '<span style="background:#00ff66; color:black; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold; margin-left:8px; vertical-align:middle;">📍 NEAREST</span>'
+
+                if hospital.get("top_10") and not hospital.get("recommended") and not hospital.get("nearest"):
                     highlight_style = "border-left: 4px solid #44aaff; background: #1a202a; box-shadow: 0 0 10px rgba(68, 170, 255, 0.15);"
-                    badge_html = '<span style="background:#44aaff; color:black; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold; margin-left:8px; vertical-align:middle;">🌟 TOP 10 MATCH</span>'
-                else:
-                    highlight_style = ""
-                    badge_html = ""
+                    badge_html += '<span style="background:#44aaff; color:black; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold; margin-left:8px; vertical-align:middle;">🌟 TOP 10</span>'
 
                 st.markdown(f"""
                 <div class="hospital-card" style="{highlight_style}">

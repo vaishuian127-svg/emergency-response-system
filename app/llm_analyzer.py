@@ -216,17 +216,21 @@ def rank_hospitals_by_accident_type(hospitals: list, analysis: dict) -> list:
             hospital, required_type, required_specialties
         )
 
-    # Sort by score descending, then by distance
+    # Sort by score descending to find the recommended one
     hospitals.sort(key=lambda h: (-h["match_score"], h["distance_km"]))
 
-    # Mark the top hospital as best match and top 10
+    # Mark the recommended and top 10
     if hospitals:
         for i, h in enumerate(hospitals):
-            h["best_match"] = (i == 0)
+            h["recommended"] = (i == 0)
             h["top_10"] = (i < 10)
 
-    # Sort back by distance so the nearest hospitals are presented in order
+    # Sort back by distance to find the absolute nearest and present in order
     hospitals.sort(key=lambda h: h["distance_km"])
+    
+    # Mark the absolute nearest hospital
+    if hospitals:
+        hospitals[0]["nearest"] = True
 
     return hospitals
 
