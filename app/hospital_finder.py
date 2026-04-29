@@ -264,7 +264,9 @@ def find_nearby_hospitals(location: str, radius_km: int = 5):
             "lat": h_lat,
             "lon": h_lon,
             "phone": phone,
-            "emergency": tags.get("emergency", "yes"),
+            "emergency": tags.get("emergency", "unknown"),
+            "opening_hours": tags.get("opening_hours", "unknown"),
+            "capacity": int(tags.get("capacity", "0")) if tags.get("capacity", "0").isdigit() else 0
         })
 
     hospitals.sort(key=lambda x: x["distance_km"])

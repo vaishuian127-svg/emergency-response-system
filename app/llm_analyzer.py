@@ -157,14 +157,37 @@ def score_hospital_for_accident(hospital: dict, required_type: str, required_spe
         if kw in name:
             score += 3
 
+    # Massive bonus for explicit 24/7 emergency support
+    emergency_tag = hospital.get("emergency", "unknown").lower()
+    opening_hours = hospital.get("opening_hours", "unknown").lower()
+    
+    if emergency_tag == "yes":
+        score += 50
+    
+    if "24/7" in opening_hours or "24x7" in opening_hours or "00:00-24:00" in opening_hours:
+        score += 30
+
+    # Bonus for known high-tier top facilities
+    top_tier_keywords = ["medical college", "institute", "super specialty", "apollo", "fortis", "manipal", "narayana", "aster", "medanta"]
+    for kw in top_tier_keywords:
+        if kw in name:
+            score += 25
+
+    # Bonus for capacity (bigger hospital = better facility)
+    capacity = hospital.get("capacity", 0)
+    if capacity > 100:
+        score += 20
+    elif capacity > 50:
+        score += 10
+
     # Closer hospitals get a distance bonus
     distance = hospital.get("distance_km", 999)
     if distance <= 2:
-        score += 6
+        score += 15
     elif distance <= 5:
-        score += 4
+        score += 10
     elif distance <= 10:
-        score += 2
+        score += 5
 
     return score
 
