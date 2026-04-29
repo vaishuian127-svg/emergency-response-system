@@ -184,14 +184,17 @@ def score_hospital_for_accident(hospital: dict, required_type: str, required_spe
     elif capacity > 50:
         score += 10
 
-    # Closer hospitals get a distance bonus
+    # Powerful distance calculation: Closer is significantly better
     distance = hospital.get("distance_km", 999)
     if distance <= 2:
-        score += 15
+        score += 30  # Massive boost for being incredibly close (<2km)
     elif distance <= 5:
-        score += 10
+        score += 20  # Huge boost for being very near (<5km)
     elif distance <= 10:
-        score += 5
+        score += 10  # Good boost for being within city limits (<10km)
+    
+    # Slight penalty for being too far, ensuring we prefer closer top-tier hospitals
+    score -= int(distance)
 
     return score
 
