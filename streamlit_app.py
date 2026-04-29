@@ -369,6 +369,10 @@ def show_app():
             st.session_state.voice_recording_key = 0
         if "transcribed_audio_key" not in st.session_state:
             st.session_state.transcribed_audio_key = -1
+        if "report_input" not in st.session_state:
+            st.session_state.report_input = ""
+        if "location_input" not in st.session_state:
+            st.session_state.location_input = ""
 
         st.markdown("🎙️ **Voice Input** — record your accident report:")
 
@@ -383,31 +387,46 @@ def show_app():
         with btn_col1:
             if st.button("🗑️ Cancel & Re-record", use_container_width=True, key="cancel_audio"):
                 st.session_state.voice_text = ""
+                st.session_state.report_input = ""
+                st.session_state.location_input = ""
                 st.session_state.voice_recording_key += 1
                 st.rerun()
         # Auto-transcribe when audio is recorded
         current_audio_key = st.session_state.voice_recording_key
         if audio_file is not None and st.session_state.transcribed_audio_key != current_audio_key:
-            with st.spinner("🔊 Transcribing your voice..."):
+            with st.spinner("🔊 Transcribing your voice and extracting details..."):
                 try:
                     from groq import Groq
                     groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
                     transcription = groq_client.audio.transcriptions.create(
                         file=("audio.wav", audio_file.read(), "audio/wav"),
-                        model="whisper-large-v3",
-                        language="en"
+                        model="whisper-large-v3"
                     )
                     st.session_state.voice_text = transcription.text
+                    st.session_state.report_input = transcription.text
+                    
+                    # Extract location using Llama3
+                    chat_completion = groq_client.chat.completions.create(
+                        messages=[
+                            {"role": "system", "content": "You are a location extractor. Extract the exact accident location from the text. Return ONLY the exact location name as it appears in the text without any translation. If no location is mentioned, return the exact word 'UNKNOWN'."},
+                            {"role": "user", "content": transcription.text}
+                        ],
+                        model="llama3-8b-8192",
+                        temperature=0.1
+                    )
+                    extracted_location = chat_completion.choices[0].message.content.strip().strip("\"'")
+                    
+                    if extracted_location.upper() != "UNKNOWN" and extracted_location:
+                        st.session_state.location_input = extracted_location
+
                     st.session_state.transcribed_audio_key = current_audio_key
                     st.success(f"✅ Transcribed: {st.session_state.voice_text}")
                 except Exception as e:
                     st.warning(f"Voice transcription failed: {str(e)}")
 
-        voice_text = st.session_state.voice_text
-
         report = st.text_area(
             label="Describe the accident",
-            value=voice_text if voice_text else "",
+            key="report_input",
             placeholder="Example: Two vehicles collided near the main market. One person is unconscious and bleeding heavily.",
             height=130,
             label_visibility="collapsed"
@@ -417,6 +436,7 @@ def show_app():
         st.markdown("### 📍 Accident Location")
         location = st.text_input(
             label="Location",
+            key="location_input",
             placeholder="Example: MG Road, Bangalore",
             label_visibility="collapsed"
         )
