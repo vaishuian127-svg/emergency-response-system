@@ -581,7 +581,7 @@ def show_app():
 
             # Render map
             st.pydeck_chart(pdk.Deck(
-                map_style="mapbox://styles/mapbox/dark-v11",
+                map_style=None,
                 initial_view_state=pdk.ViewState(
                     latitude=lat,
                     longitude=lon,
