@@ -168,7 +168,11 @@ def score_hospital_for_accident(hospital: dict, required_type: str, required_spe
         score += 30
 
     # Bonus for known high-tier top facilities
-    top_tier_keywords = ["medical college", "institute", "super specialty", "apollo", "fortis", "manipal", "narayana", "aster", "medanta"]
+    top_tier_keywords = [
+        "medical college", "institute", "super specialty", "apollo", "fortis", 
+        "manipal", "narayana", "aster", "medanta", "siddaganga", "st john",
+        "christian medical", "cmc", "bapuji", "ramaiah", "kempegowda", "aiims"
+    ]
     for kw in top_tier_keywords:
         if kw in name:
             score += 25
