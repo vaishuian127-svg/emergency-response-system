@@ -43,6 +43,18 @@ def get_coordinates(location: str):
         except Exception:
             pass
 
+    # Strategy 4: Fallback to Open-Meteo Geocoding (great for cities like Tumkuru)
+    try:
+        first_part = location.split(",")[0].strip()
+        om_url = "https://geocoding-api.open-meteo.com/v1/search"
+        om_params = {"name": first_part, "count": 1}
+        response = requests.get(om_url, params=om_params, timeout=15)
+        data = response.json()
+        if data.get("results"):
+            return float(data["results"][0]["latitude"]), float(data["results"][0]["longitude"])
+    except Exception:
+        pass
+
     return None, None
 
 
