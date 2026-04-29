@@ -16,7 +16,7 @@ def analyze_accident(report: str):
 
     prompt = f"""
 You are an emergency response AI assistant.
-Analyze the following accident report and extract information. The report might be in English, a regional language (like Hindi, Tamil, Telugu), or even written in Romanized transliteration (e.g., "yahan bohot bada accident hua hai"). Understand the context accurately regardless of the language.
+Analyze the following accident report and extract information. The report will be in English. Understand the context accurately.
 
 Accident Report:
 \"{report}\"
