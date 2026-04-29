@@ -226,10 +226,17 @@ def find_nearby_hospitals(location: str, radius_km: int = 5):
         name_lower = name.lower()
         non_emergency_keywords = [
             "dental", "eye", "vision", "fertility", "ivf", "hair", 
-            "physiotherapy", "physio", "homeopathy", "ayurveda", 
-            "rehab", "psychiatric", "acupuncture", "skin clinic", "laser"
+            "physiotherapy", "physio", "homeopathy", "ayurveda", "ayurvedic",
+            "unani", "siddha", "rehab", "psychiatric", "acupuncture", "skin",
+            "laser", "derma", "diagnostic", "lab", "scan", "mri", "imaging",
+            "blood bank", "blood center", "pharmacy", "dispensary", "veterinary",
+            "vet", "pet", "animal", "aesthetic", "wellness", "fitness", "yoga",
+            "polyclinic", "poly clinic", "outpatient", "consulting", "x-ray", "xray",
+            "clinic"
         ]
         if any(kw in name_lower for kw in non_emergency_keywords):
+            # Exception: if they explicitly have emergency=yes, we might keep them, 
+            # but usually a dental hospital with emergency=yes is just a dental emergency.
             continue
 
         if element["type"] == "node":
