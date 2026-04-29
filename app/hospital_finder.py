@@ -5,13 +5,13 @@ import math
 def get_coordinates(location: str):
     """
     Converts a location name to latitude and longitude.
-    Tries multiple search strategies to maximize success.
+    Tries multiple search strategies to maximize success, restricted to India.
     """
     url = "https://nominatim.openstreetmap.org/search"
     headers = {"User-Agent": "EmergencyResponseSystem/1.0"}
 
-    # Strategy 1: Search exactly as given
-    params = {"q": location, "format": "json", "limit": 1}
+    # Strategy 1: Search exactly as given, restricted to India
+    params = {"q": location, "format": "json", "limit": 1, "countrycodes": "in"}
     try:
         response = requests.get(url, params=params, headers=headers, timeout=15)
         data = response.json()
@@ -20,9 +20,9 @@ def get_coordinates(location: str):
     except Exception:
         pass
 
-    # Strategy 2: Add "India" if no result (helps with Indian city names)
+    # Strategy 2: Add "India" explicitly if no result
     if "india" not in location.lower():
-        params = {"q": location + ", India", "format": "json", "limit": 1}
+        params = {"q": location + ", India", "format": "json", "limit": 1, "countrycodes": "in"}
         try:
             response = requests.get(url, params=params, headers=headers, timeout=15)
             data = response.json()
@@ -34,7 +34,7 @@ def get_coordinates(location: str):
     # Strategy 3: Try just the last word (city name only)
     parts = [p.strip() for p in location.replace(",", " ").split() if len(p.strip()) > 3]
     if parts:
-        params = {"q": parts[-1], "format": "json", "limit": 1}
+        params = {"q": parts[-1], "format": "json", "limit": 1, "countrycodes": "in"}
         try:
             response = requests.get(url, params=params, headers=headers, timeout=15)
             data = response.json()
@@ -47,10 +47,15 @@ def get_coordinates(location: str):
     try:
         first_part = location.split(",")[0].strip()
         om_url = "https://geocoding-api.open-meteo.com/v1/search"
-        om_params = {"name": first_part, "count": 1}
+        om_params = {"name": first_part, "count": 5}
         response = requests.get(om_url, params=om_params, timeout=15)
         data = response.json()
         if data.get("results"):
+            # Try to find an Indian match first
+            for res in data["results"]:
+                if res.get("country_code") == "IN":
+                    return float(res["latitude"]), float(res["longitude"])
+            # Fallback to whatever first result is
             return float(data["results"][0]["latitude"]), float(data["results"][0]["longitude"])
     except Exception:
         pass
