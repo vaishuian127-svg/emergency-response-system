@@ -560,15 +560,67 @@ def show_app():
             <div class="info-card-value">{analysis.get('immediate_actions', 'N/A')}</div>
         </div>""", unsafe_allow_html=True)
 
-        # Accident Location Map
+        # ─── Interactive Emergency Map ───────────────────────────
         if lat and lon:
-            st.markdown('<div class="section-header">🌐 Accident Location</div>',
-                        unsafe_allow_html=True)
-            import pandas as pd
-            st.map(pd.DataFrame({"lat": [lat], "lon": [lon]}), zoom=15)
-            st.caption(f"📍 Coordinates: {round(lat, 5)}, {round(lon, 5)}")
+            st.markdown('<div class="section-header">🗺️ Interactive Emergency Map</div>', unsafe_allow_html=True)
+            import pydeck as pdk
+            
+            # Prepare map data
+            acc_data = [{"name": "🚨 ACCIDENT SCENE", "type": "Emergency", "lat": lat, "lon": lon, "color": [255, 0, 0, 255]}]
+            hosp_data = []
+            for h in hospitals:
+                # Top match gets gold, others get blue
+                color = [255, 170, 0, 255] if h.get("best_match") else [68, 170, 255, 200]
+                hosp_data.append({
+                    "name": h["name"],
+                    "type": h["type"],
+                    "lat": h["lat"],
+                    "lon": h["lon"],
+                    "color": color
+                })
 
-        # Hospitals
+            # Render map
+            st.pydeck_chart(pdk.Deck(
+                map_style="mapbox://styles/mapbox/dark-v11",
+                initial_view_state=pdk.ViewState(
+                    latitude=lat,
+                    longitude=lon,
+                    zoom=13,
+                    pitch=0,
+                ),
+                layers=[
+                    pdk.Layer(
+                        'ScatterplotLayer',
+                        data=hosp_data,
+                        get_position='[lon, lat]',
+                        get_color='color',
+                        get_radius=150,
+                        pickable=True,
+                        opacity=0.8,
+                        filled=True,
+                        radius_scale=1,
+                        radius_min_pixels=5,
+                        radius_max_pixels=15,
+                    ),
+                    pdk.Layer(
+                        'ScatterplotLayer',
+                        data=acc_data,
+                        get_position='[lon, lat]',
+                        get_color='color',
+                        get_radius=200,
+                        pickable=True,
+                        opacity=1.0,
+                        filled=True,
+                        radius_scale=1,
+                        radius_min_pixels=8,
+                        radius_max_pixels=20,
+                    ),
+                ],
+                tooltip={"html": "<b>{name}</b><br/>{type}", "style": {"color": "white", "backgroundColor": "#222222", "borderRadius": "8px"}}
+            ))
+            st.caption(f"📍 Accident Coordinates: {round(lat, 5)}, {round(lon, 5)} | 🔴 Accident | 🔵 Hospital | 🟡 Best Match")
+
+        # Hospitals List
         st.markdown('<div class="section-header">🏥 Nearby Hospitals</div>', unsafe_allow_html=True)
 
         if not hospitals:
@@ -578,11 +630,6 @@ def show_app():
                 st.warning(f"⚠️ No hospitals found within {radius} km. Automatically expanded search to **{radius_used} km** and found **{len(hospitals)} hospitals** (Top AI Matches highlighted).")
             else:
                 st.success(f"✅ Found {len(hospitals)} hospitals within {radius_used} km of {location} (Top AI Matches highlighted).")
-            import pandas as pd
-            st.map(pd.DataFrame({
-                "lat": [h["lat"] for h in hospitals],
-                "lon": [h["lon"] for h in hospitals],
-            }), zoom=13)
 
             for i, hospital in enumerate(hospitals):
                 phone = hospital.get("phone")
