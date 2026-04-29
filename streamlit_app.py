@@ -400,7 +400,8 @@ def show_app():
                     groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
                     transcription = groq_client.audio.transcriptions.create(
                         file=("audio.wav", audio_file.read(), "audio/wav"),
-                        model="whisper-large-v3"
+                        model="whisper-large-v3",
+                        language="en"
                     )
                     st.session_state.voice_text = transcription.text
                     st.session_state.report_input = transcription.text
@@ -411,7 +412,7 @@ def show_app():
                             {"role": "system", "content": "You are a location extractor. Extract the exact accident location from the text. Return ONLY the exact location name as it appears in the text without any translation. If no location is mentioned, return the exact word 'UNKNOWN'."},
                             {"role": "user", "content": transcription.text}
                         ],
-                        model="llama3-8b-8192",
+                        model="llama-3.3-70b-versatile",
                         temperature=0.1
                     )
                     extracted_location = chat_completion.choices[0].message.content.strip().strip("\"'")
