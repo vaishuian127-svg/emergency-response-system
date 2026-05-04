@@ -1,9 +1,7 @@
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import os
 import threading
 from dotenv import load_dotenv
+import resend
 
 load_dotenv()
 
@@ -18,20 +16,15 @@ def send_dispatcher_email_async(analysis: dict, hospitals: list, location: str, 
     thread.start()
 
 def _send_dispatcher_email_sync(analysis: dict, hospitals: list, location: str, lat: float, lon: float):
-    sender_email = os.getenv("SENDER_EMAIL")
-    sender_password = os.getenv("SENDER_PASSWORD")
-    dispatcher_email = os.getenv("DISPATCHER_EMAIL") # Can be the same as sender_email for testing
+    resend.api_key = os.getenv("RESEND_API_KEY")
+    dispatcher_email = os.getenv("DISPATCHER_EMAIL")
 
-    if not sender_email or not sender_password or not dispatcher_email:
-        print("Email credentials not fully set in .env. Skipping email dispatch.")
+    if not resend.api_key or not dispatcher_email:
+        print("Resend API Key or DISPATCHER_EMAIL not set in .env. Skipping email dispatch.")
         return
 
-    # Create the email message
-    msg = MIMEMultipart("alternative")
     severity = analysis.get('severity', 'UNKNOWN')
-    msg['Subject'] = f"🚨 URGENT: {severity} Emergency reported at {location}"
-    msg['From'] = f"Emergency Response System <{sender_email}>"
-    msg['To'] = dispatcher_email
+    subject = f"🚨 URGENT: {severity} Emergency reported at {location}"
 
     # Format hospital list for email
     top_hospitals_html = ""
@@ -86,16 +79,14 @@ def _send_dispatcher_email_sync(analysis: dict, hospitals: list, location: str, 
     </html>
     """
     
-    part = MIMEText(html, "html")
-    msg.attach(part)
-
     try:
-        # Connect to Gmail SMTP server
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()  # Secure the connection
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, dispatcher_email, msg.as_string())
-        server.quit()
-        print(f"✅ Successfully sent dispatch email to {dispatcher_email}")
+        # Send email via Resend API
+        response = resend.Emails.send({
+            "from": "onboarding@resend.dev",
+            "to": dispatcher_email,
+            "subject": subject,
+            "html": html
+        })
+        print(f"✅ Successfully sent dispatch email via Resend to {dispatcher_email}")
     except Exception as e:
         print(f"❌ Failed to send dispatch email: {e}")
