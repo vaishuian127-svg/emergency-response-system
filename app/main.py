@@ -7,6 +7,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.llm_analyzer import analyze_accident, generate_emergency_plan, rank_hospitals_by_accident_type
 from app.hospital_finder import find_nearby_hospitals
+from app.email_service import send_dispatcher_email_async
 
 # ─── App Setup ─────────────────────────────────────────────
 app = FastAPI(
@@ -102,6 +103,15 @@ def analyze_emergency(data: AccidentRequest):
         plan = generate_emergency_plan(analysis, hospitals)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Plan generation failed: {str(e)}")
+
+    # Send email to dispatcher in the background
+    send_dispatcher_email_async(
+        analysis=analysis,
+        hospitals=hospitals,
+        location=data.location,
+        lat=lat,
+        lon=lon
+    )
 
     return {
         "success": True,
