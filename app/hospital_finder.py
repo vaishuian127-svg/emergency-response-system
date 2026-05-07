@@ -149,11 +149,12 @@ def find_nearby_hospitals(location: str, radius_km: int = 5):
     (
       node["amenity"="hospital"](around:{radius_m},{lat},{lon});
       way["amenity"="hospital"](around:{radius_m},{lat},{lon});
+      relation["amenity"="hospital"](around:{radius_m},{lat},{lon});
       node["healthcare"="hospital"](around:{radius_m},{lat},{lon});
+      way["healthcare"="hospital"](around:{radius_m},{lat},{lon});
+      relation["healthcare"="hospital"](around:{radius_m},{lat},{lon});
     );
-    out body;
-    >;
-    out skel qt;
+    out center;
     """
 
     # Try multiple Overpass servers in case one is down or rate-limiting

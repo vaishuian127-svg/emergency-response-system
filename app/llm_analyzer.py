@@ -162,10 +162,10 @@ def score_hospital_for_accident(hospital: dict, required_type: str, required_spe
     opening_hours = hospital.get("opening_hours", "unknown").lower()
     
     if emergency_tag == "yes":
-        score += 50
+        score += 100
     
     if "24/7" in opening_hours or "24x7" in opening_hours or "00:00-24:00" in opening_hours:
-        score += 30
+        score += 80
 
     # Bonus for known high-tier top facilities
     top_tier_keywords = [
@@ -175,26 +175,27 @@ def score_hospital_for_accident(hospital: dict, required_type: str, required_spe
     ]
     for kw in top_tier_keywords:
         if kw in name:
-            score += 25
+            score += 150
 
     # Bonus for capacity (bigger hospital = better facility)
     capacity = hospital.get("capacity", 0)
     if capacity > 100:
-        score += 20
+        score += 50
     elif capacity > 50:
-        score += 10
+        score += 20
 
     # Powerful distance calculation: Closer is significantly better
     distance = hospital.get("distance_km", 999)
     if distance <= 2:
-        score += 30  # Massive boost for being incredibly close (<2km)
+        score += 80  # Massive boost for being incredibly close (<2km)
     elif distance <= 5:
-        score += 20  # Huge boost for being very near (<5km)
+        score += 40  # Huge boost for being very near (<5km)
     elif distance <= 10:
-        score += 10  # Good boost for being within city limits (<10km)
+        score += 15  # Good boost for being within city limits (<10km)
     
-    # Slight penalty for being too far, ensuring we prefer closer top-tier hospitals
-    score -= int(distance)
+    # Severe penalty for distance to ensure we pick nearest among top facilities
+    # This guarantees that out of the good facilities, the nearest one wins.
+    score -= int(distance * 10)
 
     return score
 
