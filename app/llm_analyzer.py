@@ -137,19 +137,19 @@ def score_hospital_for_accident(hospital: dict, required_type: str, required_spe
     keywords = HOSPITAL_TYPE_KEYWORDS.get(required_type, [])
     for kw in keywords:
         if kw in name:
-            score += 10
+            score += 500
 
     # Check required specialties in hospital name
     for specialty in required_specialties:
         if specialty.lower() in name:
-            score += 8
+            score += 500
 
-    # Government hospitals get massive bonus as they are default major emergency centers
+    # Government hospitals get bonus for trauma/general emergencies
     if required_type in ["trauma_center", "general", "multi_specialty"]:
         if h_type == "Government" or "government" in name or "govt" in name:
-            score += 50
-        if "district" in name or "taluk" in name or "general hospital" in name or "civil hospital" in name:
-            score += 100
+            score += 5
+        if "district" in name or "taluk" in name or "general hospital" in name:
+            score += 5
 
     # Multi-specialty hospitals are good fallback for any accident
     multi_keywords = HOSPITAL_TYPE_KEYWORDS["multi_specialty"]
@@ -162,41 +162,39 @@ def score_hospital_for_accident(hospital: dict, required_type: str, required_spe
     opening_hours = hospital.get("opening_hours", "unknown").lower()
     
     if emergency_tag == "yes":
-        score += 100
+        score += 50
     
     if "24/7" in opening_hours or "24x7" in opening_hours or "00:00-24:00" in opening_hours:
-        score += 80
+        score += 30
 
-    # Bonus for known high-tier top facilities (including major government hospitals)
+    # Bonus for known high-tier top facilities
     top_tier_keywords = [
         "medical college", "institute", "super specialty", "apollo", "fortis", 
         "manipal", "narayana", "aster", "medanta", "siddaganga", "st john",
-        "christian medical", "cmc", "bapuji", "ramaiah", "kempegowda", "aiims",
-        "district hospital", "general hospital", "victoria", "bowring"
+        "christian medical", "cmc", "bapuji", "ramaiah", "kempegowda", "aiims"
     ]
     for kw in top_tier_keywords:
         if kw in name:
-            score += 150
+            score += 25
 
     # Bonus for capacity (bigger hospital = better facility)
     capacity = hospital.get("capacity", 0)
     if capacity > 100:
-        score += 50
-    elif capacity > 50:
         score += 20
+    elif capacity > 50:
+        score += 10
 
     # Powerful distance calculation: Closer is significantly better
     distance = hospital.get("distance_km", 999)
     if distance <= 2:
-        score += 80  # Massive boost for being incredibly close (<2km)
+        score += 30  # Massive boost for being incredibly close (<2km)
     elif distance <= 5:
-        score += 40  # Huge boost for being very near (<5km)
+        score += 20  # Huge boost for being very near (<5km)
     elif distance <= 10:
-        score += 15  # Good boost for being within city limits (<10km)
+        score += 10  # Good boost for being within city limits (<10km)
     
-    # Severe penalty for distance to ensure we pick nearest among top facilities
-    # This guarantees that out of the good facilities, the nearest one wins.
-    score -= int(distance * 10)
+    # Slight penalty for being too far, ensuring we prefer closer top-tier hospitals
+    score -= int(distance)
 
     return score
 
