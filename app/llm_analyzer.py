@@ -144,12 +144,12 @@ def score_hospital_for_accident(hospital: dict, required_type: str, required_spe
         if specialty.lower() in name:
             score += 8
 
-    # Government hospitals get bonus for trauma/general emergencies
+    # Government hospitals get massive bonus as they are default major emergency centers
     if required_type in ["trauma_center", "general", "multi_specialty"]:
         if h_type == "Government" or "government" in name or "govt" in name:
-            score += 5
-        if "district" in name or "taluk" in name or "general hospital" in name:
-            score += 5
+            score += 50
+        if "district" in name or "taluk" in name or "general hospital" in name or "civil hospital" in name:
+            score += 100
 
     # Multi-specialty hospitals are good fallback for any accident
     multi_keywords = HOSPITAL_TYPE_KEYWORDS["multi_specialty"]
@@ -167,11 +167,12 @@ def score_hospital_for_accident(hospital: dict, required_type: str, required_spe
     if "24/7" in opening_hours or "24x7" in opening_hours or "00:00-24:00" in opening_hours:
         score += 80
 
-    # Bonus for known high-tier top facilities
+    # Bonus for known high-tier top facilities (including major government hospitals)
     top_tier_keywords = [
         "medical college", "institute", "super specialty", "apollo", "fortis", 
         "manipal", "narayana", "aster", "medanta", "siddaganga", "st john",
-        "christian medical", "cmc", "bapuji", "ramaiah", "kempegowda", "aiims"
+        "christian medical", "cmc", "bapuji", "ramaiah", "kempegowda", "aiims",
+        "district hospital", "general hospital", "victoria", "bowring"
     ]
     for kw in top_tier_keywords:
         if kw in name:
