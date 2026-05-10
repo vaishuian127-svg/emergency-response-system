@@ -100,27 +100,22 @@ def show_login():
             padding-top: 2rem !important;
             max-width: 100% !important;
         }}
-        .login-wrapper {{ max-width: 520px; margin: 0 auto; padding: 0 1rem; }}
-        .login-box {{
-            background: {LOGIN_BG};
-            border: 1px solid {LOGIN_BORDER};
-            border-radius: 24px;
-            padding: 2.5rem 2rem;
-            text-align: center;
-        }}
         .login-title {{
             font-size: 2.4rem; font-weight: 800;
             background: linear-gradient(90deg, #ff4444, #ff8800);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 0.3rem; line-height: 1.2;
+            text-align: center;
         }}
         .login-subtitle {{
             color: {MUTED}; font-size: 1rem; margin-bottom: 1.2rem;
+            text-align: center;
         }}
         .footer-note {{
             color: {MUTED}; font-size: 0.75rem;
             margin-top: 1.5rem; line-height: 1.6;
+            text-align: center;
         }}
         .divider-line {{
             display: flex; align-items: center;
@@ -160,55 +155,56 @@ def show_login():
             -webkit-text-fill-color: transparent;
             letter-spacing: 4px;
         ">EROS</div>
-        <div style="font-size: 0.7rem; color: {MUTED}; letter-spacing: 2px;">
-            EMERGENCY RESPONSE OS
+        <div style="font-size: 0.7rem; color: {MUTED}; letter-spacing: 2px; text-transform: uppercase;">
+            emergency response optimization system
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="login-wrapper"><div class="login-box">', unsafe_allow_html=True)
-    st.markdown('<div class="login-title">🚑 Emergency Response System</div>', unsafe_allow_html=True)
-    st.markdown('<div class="login-subtitle">AI-Powered Emergency Analysis Platform</div>', unsafe_allow_html=True)
+    _, col, _ = st.columns([1, 2, 1])
+    
+    with col:
+        st.markdown('<div class="login-title">🚑 Emergency Response System</div>', unsafe_allow_html=True)
+        st.markdown('<div class="login-subtitle">AI-Powered Emergency Analysis Platform</div>', unsafe_allow_html=True)
 
-    st.markdown(f"""
-    <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:1.5rem;">
-        <div style="background:#1a1a2e; border-radius:20px; padding:6px 14px; font-size:0.82rem; color:#8888ff;">🧠 AI Analysis</div>
-        <div style="background:#1a2e1a; border-radius:20px; padding:6px 14px; font-size:0.82rem; color:#44cc88;">🏥 Real Hospitals</div>
-        <div style="background:#2e1a1a; border-radius:20px; padding:6px 14px; font-size:0.82rem; color:#ff8844;">📊 Severity Detection</div>
-        <div style="background:#1a2a2e; border-radius:20px; padding:6px 14px; font-size:0.82rem; color:#44aaff;">🎙️ Voice Input</div>
-        <div style="background:#2a1a2e; border-radius:20px; padding:6px 14px; font-size:0.82rem; color:#aa66ff;">🗺️ Live Maps</div>
-    </div>
-    """, unsafe_allow_html=True)
+        st.markdown(f"""
+        <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:1.5rem;">
+            <div style="background:#1a1a2e; border-radius:20px; padding:6px 14px; font-size:0.82rem; color:#8888ff;">🧠 AI Analysis</div>
+            <div style="background:#1a2e1a; border-radius:20px; padding:6px 14px; font-size:0.82rem; color:#44cc88;">🏥 Real Hospitals</div>
+            <div style="background:#2e1a1a; border-radius:20px; padding:6px 14px; font-size:0.82rem; color:#ff8844;">📊 Severity Detection</div>
+            <div style="background:#1a2a2e; border-radius:20px; padding:6px 14px; font-size:0.82rem; color:#44aaff;">🎙️ Voice Input</div>
+            <div style="background:#2a1a2e; border-radius:20px; padding:6px 14px; font-size:0.82rem; color:#aa66ff;">🗺️ Live Maps</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.markdown('<div class="divider-line">Login to continue</div>', unsafe_allow_html=True)
+        st.markdown('<div class="divider-line">Login to continue</div>', unsafe_allow_html=True)
 
-    # Simple login form
-    username = st.text_input("Username", placeholder="Enter username", key="login_username")
-    password = st.text_input("Password", placeholder="Enter password", type="password", key="login_password")
+        # Simple login form
+        username = st.text_input("Username", placeholder="Enter username", key="login_username")
+        password = st.text_input("Password", placeholder="Enter password", type="password", key="login_password")
 
-    if st.button("🚑 Login", key="login_btn"):
-        # Valid credentials - you can change these
-        valid_users = {
-            "admin": "eros2024",
-            "demo": "demo123",
-            "eros": "emergency",
-        }
-        if username in valid_users and valid_users[username] == password:
-            st.session_state.connected = True
-            st.session_state.user_info = {"name": username, "picture": ""}
-            cookies["user_info"] = json.dumps({"name": username, "picture": ""})
-            cookies.save()
-            st.rerun()
-        else:
-            st.error("❌ Invalid username or password!")
+        if st.button("🚑 Login", key="login_btn"):
+            # Valid credentials - you can change these
+            valid_users = {
+                "admin": "eros2024",
+                "demo": "demo123",
+                "eros": "emergency",
+            }
+            if username in valid_users and valid_users[username] == password:
+                st.session_state.connected = True
+                st.session_state.user_info = {"name": username, "picture": ""}
+                cookies["user_info"] = json.dumps({"name": username, "picture": ""})
+                cookies.save()
+                st.rerun()
+            else:
+                st.error("❌ Invalid username or password!")
 
-    st.markdown("""
-    <div class="footer-note">
-        🔒 This is a simulation system for educational purposes.<br>
-        No real emergency services are notified.
-    </div>
-    """, unsafe_allow_html=True)
-    st.markdown('</div></div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="footer-note">
+            🔒 This is a simulation system for educational purposes.<br>
+            No real emergency services are notified.
+        </div>
+        """, unsafe_allow_html=True)
 
 
 # ─── Main App ───────────────────────────────────────────────
