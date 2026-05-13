@@ -314,8 +314,8 @@ def show_app():
         .severity-markers {{ display:flex; justify-content:space-between; margin-top:6px; }}
         .severity-marker {{ font-size:0.7rem; color:{MUTED}; }}
         .user-badge {{
-            background:{DEMO_BG}; border-radius:20px; padding:4px 14px;
-            font-size:0.85rem; color:{TEXT2}; display:inline-block;
+            background:{DEMO_BG}; border-radius:20px; padding:8px 20px;
+            font-size:1.1rem; color:{TEXT2}; display:inline-block;
         }}
         .api-status {{
             background:#0d1a0d; border:1px solid #1a4a1a;
