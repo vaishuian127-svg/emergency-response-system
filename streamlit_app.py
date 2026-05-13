@@ -285,11 +285,21 @@ def show_app():
             background:{INPUT_BG} !important; color:{TEXT} !important;
             caret-color: {TEXT} !important;
             border:1px solid {INPUT_BORDER} !important; border-radius:10px !important;
+            padding: 14px 18px !important; font-size: 1.05rem !important;
+        }}
+        .stTextArea textarea::placeholder {{
+            color: white !important;
+            opacity: 1 !important;
         }}
         .stTextInput input {{
             background:{INPUT_BG} !important; color:{TEXT} !important;
             caret-color: {TEXT} !important;
             border:1px solid {INPUT_BORDER} !important; border-radius:10px !important;
+            padding: 14px 18px !important; font-size: 1.05rem !important;
+        }}
+        .stTextInput input::placeholder {{
+            color: white !important;
+            opacity: 1 !important;
         }}
         .severity-bar-container {{
             background:{SEV_BG}; border-radius:12px; padding:1.2rem;
