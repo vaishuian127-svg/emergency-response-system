@@ -131,6 +131,17 @@ def show_login():
             color: white !important;
             border: 1px solid #444444 !important;
             border-radius: 10px !important;
+            padding: 14px 18px !important;
+            font-size: 1.05rem !important;
+        }}
+        .stTextInput input::placeholder {{
+            color: white !important;
+            opacity: 1 !important;
+        }}
+        .stTextInput label, .stTextInput label p {{
+            color: white !important;
+            font-size: 0.95rem !important;
+            font-weight: 600 !important;
         }}
         .stButton > button {{
             background: linear-gradient(90deg, #cc0000, #ff4444) !important;
