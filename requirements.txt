@@ -1,0 +1,12 @@
+streamlit
+groq
+requests
+httpx
+python-dotenv
+# streamlit-cookies-manager package is deprecated and incompatible with Streamlit >=1.28.
+# Replaced with extra-streamlit-components:
+extra-streamlit-components
+pandas
+fastapi
+uvicorn
+resend
