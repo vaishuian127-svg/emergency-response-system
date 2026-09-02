@@ -39,10 +39,7 @@ def call_backend(report: str, location: str, radius: int):
 # ─── Cookie Manager ─────────────────────────────────────────
 try:
     import extra_streamlit_components as stx
-    @st.cache_resource
-    def get_cookie_manager():
-        return stx.CookieManager()
-    cookie_manager = get_cookie_manager()
+    cookie_manager = stx.CookieManager()
 except Exception:
     cookie_manager = None
 
